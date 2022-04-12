@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin=""/>
+        <script src="localPluto.js"></script>
+        <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
+        <script src='//api.tiles.mapbox.com/mapbox.js/plugins/leaflet-image/v0.0.4/leaflet-image.js'></script>
+        <title>Plane with text TEST</title>
+        <style>
+            .label {
+                color: #FFF;
+                font-family: sans-serif;
+                white-space: pre;
+                padding: 2px;
+                background: regba(210, 215, 211, 0.6);
+            }
+        </style>
+    </head>
+    <body>
+        <pre id="info" style="font-family: monospace; font-size: 14px; white-space: pre; color: #F9203A;">Plane with text in AR</pre>
+        
+        <!-- <div id="map" style="display: none; height: 256px;"></div> -->
+        <script type="module">
+            // reference to page info top text bar
+            const info = document.getElementById("info");
+
+            // test of leaflet map tile
+                
+            // const mapDiv = document.createElement( 'div' );
+            
+            // var map = L.map('map').setView([51.505, -0.09], 13);
+
+            // var canvasMap = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+            //     attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+            //     maxZoom: 18,
+            //     id: 'mapbox/streets-v11',
+            //     tileSize: 512,
+            //     zoomOffset: -1,
+            //     accessToken: 'pk.eyJ1IjoibW93YXJkMTIiLCJhIjoiY2ttMHFkbzd0MDJlZTJxbXNyNGxzZGJzaSJ9.KyxNm2KzwhMm0YPhU4sARg',
+            //     preferCanvas: true
+            // });
+            // console.log(canvasMap);
+
+                // end of leaflet test
+
+            // function to test HiDPI canvas setup (from: https://medium.com/wdstack/fixing-html5-2d-canvas-blur-8ebe27db07da)
+            // var canvas = document.getElementById('canvas'),
+            //     ctx = canvas.getContext('2d'),
+            //     dpi = window.devicePixelRatio;
+
+            // function fix_dpi() {
+            //     let style = {
+            //         height() {
+            //             return
+            //             +getComputedStyle(canvas).getPropertyValue('height').slice(0,-2)
+            //         },
+            //         width() {
+            //             return
+            //             +getComputedStyle(canvas).getPropertyValue('width').slice(0,-2)
+            //         }
+            //     }
+            //     canvas.setAttribute('width', style.width() * dpi);
+            //     canvas.setAttribute('height', style.height() * dpi);
+            // }
+
+            // function draw() {
+            //     fix_dpi();
+            //     ctx.font = "12px Arial";
+            //     ctx.fillText("Hello world?", 15, 15);
+            //     requestAnimationFrame(draw);
+            // }
+            // requestAnimationFrame(draw);
+            // end of function HiDPI test
+
+            // var ctx = setupCanvas(document.getElementById('canvas'));
+            // ctx.canvas.width = 256;
+            // ctx.canvas.height = 256;
+            // ctx.fillStyle = '#ffff00';
+            // ctx.fillRect( 0, 0, ctx.canvas.width, ctx.canvas.height );
+            // ctx.font = '16px Arial';
+            // ctx.fillStyle = 'black';
+            // ctx.fillText('Hi bumblebutt', 10, 15);
+
+            import * as THREE from 'https://cdn.skypack.dev/three@0.128.0/build/three.module.js';
+            import { ARButton} from 'https://cdn.skypack.dev/three@0.128.0/examples/jsm/webxr/ARButton.js';
+            import { CSS2DRenderer, CSS2DObject } from 'https://cdn.skypack.dev/three@0.128.0/examples/jsm/renderers/CSS2DRenderer.js';
+
+            var container, camera, scene, renderer, labelRenderer;
+
+            init();
+            animate();
+
+            function init() {
+                var encodedGeojson = encodeURIComponent('{"type": "FeatureCollection", "features": [{"type":"Feature","geometry":{"type":"MultiPolygon","coordinates":[[[[-73.923429,40.739001],[-73.923439,40.738952],[-73.923801,40.738994],[-73.9238,40.738997],[-73.923791,40.739042],[-73.923429,40.739001]]]]},"properties":{"address":"48-26 42 STREET","bbl":4002010048, "stroke":"#d540e3", "fill":"#d540e3"}},{"type":"Feature","geometry":{"type":"MultiPolygon","coordinates":[[[[-73.925111,40.739018],[-73.924747,40.738976],[-73.924757,40.738922],[-73.925122,40.738964],[-73.925111,40.739018]]]]},"properties":{"address":"48-29 40 STREET","bbl":4002020018}},{"type":"Feature","geometry":{"type":"MultiPolygon","coordinates":[[[[-73.924469,40.738531],[-73.924483,40.738462],[-73.92484,40.738503],[-73.924832,40.738544],[-73.924827,40.738573],[-73.924469,40.738531]]]]},"properties":{"address":"48-48 41 STREET","bbl":4002020054}}]}');
+        
+                console.log(encodedGeojson);
+                var texture = new THREE.TextureLoader().load( `https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/geojson(${encodedGeojson})/-73.924233,40.738875,18/1280x1280?access_token=pk.eyJ1IjoibW93YXJkMTIiLCJhIjoiY2ttMHFkbzd0MDJlZTJxbXNyNGxzZGJzaSJ9.KyxNm2KzwhMm0YPhU4sARg` );
+
+                container = document.createElement( 'div' );
+                document.body.appendChild( container );
+
+                scene = new THREE.Scene();
+
+                camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.01, 150 );
+                scene.add( camera );
+
+                renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
+                renderer.setPixelRatio( window.devicePixelRatio );
+                renderer.setSize( window.innerWidth, window.innerHeight );
+                renderer.xr.enabled = true;
+                container.appendChild( renderer.domElement );
+
+                document.body.appendChild( ARButton.createButton( renderer, { 
+                    optionalFeatures: [ 'dom-overlay', 'dom-overlay-for-handheld-ar' ],
+                    domOverlay: { root: document.body }
+                }));
+
+                const color = 0xffffff;
+                const intensity = 1;
+                const light = new THREE.DirectionalLight( color, intensity );
+                light.position.set( 0, 10, 0 );
+                scene.add(light);
+
+                // texture testing
+                // var texture = new THREE.CanvasTexture(ctx.canvas);
+                // texture.anisotropy = 16;
+                // info.textContent = renderer.getMaxAnisotropy();
+
+                const geometry = new THREE.PlaneGeometry( 0.5, 0.5 );
+                const material = new THREE.MeshBasicMaterial( {map: texture, transparent: true, opacity: 0.7, color: 0xffffff, side: THREE.DoubleSide} );
+                const plane = new THREE.Mesh( geometry, material );
+                plane.position.set( -0.5, -0.3, -0.5 );
+                plane.rotateY( (45 * Math.PI) / 180 );
+                scene.add( plane );
+
+                //test of CSS2DRenderer 
+
+                const planeDiv = document.createElement( 'div' );
+                planeDiv.className = 'label';
+                planeDiv.textContent = `This is a test of the CSS2DRenderer Class. \n Hoping the lines break. \n Really hoping...`;
+                planeDiv.style.marginTop = '-1em';
+                planeDiv.style.color = 'black';
+                // planeDiv.style.background = 'red';
+                const planeLabel = new CSS2DObject( planeDiv );
+                plane.add( planeLabel );
+                planeLabel.layers.set( 1 ); 
+
+                labelRenderer = new CSS2DRenderer();
+                labelRenderer.setSize( window.innerWidth, window.innerHeight );
+                labelRenderer.domElement.style.position = 'absolute';
+                labelRenderer.domElement.style.top = '0px';
+                document.body.appendChild( labelRenderer.domElement );
+
+                //end of test
+
+            }
+
+            function animate() {
+
+                renderer.setAnimationLoop( render );
+
+            }
+
+            function render() {
+
+                renderer.render( scene, camera );
+                labelRenderer.render( scene, camera );
+
+            }
+
+        </script>
+    </body>
+</html>
