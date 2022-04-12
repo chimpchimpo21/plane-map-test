@@ -131,11 +131,17 @@
                 const geometry = new THREE.PlaneGeometry( 0.5, 0.5 );
                 const material = new THREE.MeshBasicMaterial( {map: texture, transparent: true, opacity: 0.7, color: 0xffffff, side: THREE.DoubleSide} );
                 const plane = new THREE.Mesh( geometry, material );
-                plane.position.set( -0.5, -0.3, -0.5 );
+                plane.position.set( -0.5, 0, -0.5 );
                 plane.rotateY( (45 * Math.PI) / 180 );
                 scene.add( plane );
 
                 //test of CSS2DRenderer 
+
+                const textBacking = new THREE.MeshBasicMaterial( {transparent: true, opacity: 0.3, color: 0xffffff, side: THREE.DoubleSide} );
+                const textPlane = new THREE.Mesh( geometry, textBacking );
+                textPlane.position.set( 0.5, 0, -0.5 );
+                textPlane.rotateY( -(45 * Math.PI) / 180 );
+                scene.add( textPlane );
 
                 const planeDiv = document.createElement( 'div' );
                 planeDiv.className = 'label';
@@ -144,7 +150,7 @@
                 planeDiv.style.color = 'black';
                 // planeDiv.style.background = 'red';
                 const planeLabel = new CSS2DObject( planeDiv );
-                plane.add( planeLabel );
+                textPlane.add( planeLabel );
                 planeLabel.layers.set( 1 ); 
 
                 labelRenderer = new CSS2DRenderer();
