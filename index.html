@@ -137,7 +137,7 @@
 
                 //test of CSS2DRenderer 
 
-                const textBacking = new THREE.MeshBasicMaterial( {transparent: true, opacity: 0.3, color: 0xffffff, side: THREE.DoubleSide} );
+                const textBacking = new THREE.MeshBasicMaterial( {transparent: true, opacity: 0, color: 0xffffff, side: THREE.DoubleSide} );
                 const textPlane = new THREE.Mesh( geometry, textBacking );
                 textPlane.position.set( 0.5, 0, -0.5 );
                 textPlane.rotateY( -(45 * Math.PI) / 180 );
@@ -151,7 +151,8 @@
                 // planeDiv.style.background = 'red';
                 const planeLabel = new CSS2DObject( planeDiv );
                 textPlane.add( planeLabel );
-                planeLabel.layers.set( 1 ); 
+                planeLabel.position.set( -0.1, 0.2, 0 );
+                // planeLabel.layers.set( 1 ); 
 
                 labelRenderer = new CSS2DRenderer();
                 labelRenderer.setSize( window.innerWidth, window.innerHeight );
